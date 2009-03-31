@@ -19,7 +19,7 @@ public class Process {
     private int state; // 0 = Ready; 1 = Executing;
     private int size;
     private int turnAround;
-    private int timeWhenIncludeInWaitingState;
+    private int timeWhenIncludedInWaitingState;
     private int waitingTime;
     
     public Process() {        
@@ -102,11 +102,11 @@ public class Process {
     }
 
     public int getTimeWhenIncludeInWaitingState() {
-        return timeWhenIncludeInWaitingState;
+        return timeWhenIncludedInWaitingState;
     }
 
     public void setTimeWhenIncludeInWaitingState(int timeWhenIncludeInWaitingState) {
-        this.timeWhenIncludeInWaitingState = timeWhenIncludeInWaitingState;
+        this.timeWhenIncludedInWaitingState = timeWhenIncludeInWaitingState;
     }
 
     public int getWaitingTime() {

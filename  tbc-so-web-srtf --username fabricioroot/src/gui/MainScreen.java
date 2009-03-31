@@ -758,7 +758,9 @@ public class MainScreen extends javax.swing.JApplet {
             this.st.setJDialogNextStep(null);
             this.st = null;
         }
-        t.stop();
+        if (t.isAlive()) {
+            t.stop();
+        }
         System.gc();
     }//GEN-LAST:event_jButtonRestartActionPerformed
 
