@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import java.util.Vector;
 import bean.Process;
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import manager.Calculator;
@@ -593,16 +594,17 @@ public class MainScreen extends javax.swing.JApplet {
             if(this.readyProcesses == null) {
                 this.readyProcesses = new Vector<Process>();
                 this.reportBaseTemp = new Vector<Process>();
+                this.reportBase = new Vector<Process>();
             }
             if(this.readyProcesses.size() <= 8) {
                 Process process = new Process();
-                process.setLifeTime(Integer.parseInt(this.jTextFieldBurstTime.getText()));
+                process.setLifeTime(Float.parseFloat(this.jTextFieldBurstTime.getText()));
                 process.setId(this.processCounter);
                 process.setState(0);
                 
                 if(this.st != null) {
                     this.timeCounter = this.st.getTimeCounter();
-                    process.setCreationTime(this.timeCounter);
+                    process.setCreationTime((float)this.timeCounter);
 
                     if ((this.st.getJDialogNextStep().isVisible() == true) && (this.st.getJProgressBarExecution().isVisible() != true)) {
                         this.readyProcesses.add(process);
@@ -633,32 +635,34 @@ public class MainScreen extends javax.swing.JApplet {
                     else {
                         if (this.st.getJProgressBarExecution().isVisible() == true) {
                             if (process.getLifeTime() < this.st.getRemainingTimeToFinishRunning()) {
-                                Process processAux = new Process();
+                                Process processAux;
                                 if (this.st.getNewProcess() != null) {
-                                    processAux = this.st.getNewProcess();
+                                    processAux = new Process(this.st.getNewProcess());
                                 }
                                 else {
-                                    processAux = this.st.getProcess();
+                                    processAux = new Process(this.st.getProcess());
                                 }
                                 JOptionPane.showMessageDialog(null, "Processo criado com sucesso!\n" +
                                         "OBSERVAÇÕES: 1) o processo criado (P" + process.getId() +  ") possui tempo de vida MENOR que o tempo de vida restante do processo escalonado (P" + processAux.getId() + ");\n" +
                                         "                                2) o processo escalonado (P" + processAux.getId() + ") será interrompido e entrará na lista de processos em espera (Blocos Azuis);\n" +
                                         "                                3) o processo criado (P" + process.getId() +  ") começará a ser executado imediatamente.", "ATENÇÃO", JOptionPane.WARNING_MESSAGE);
 
+                                processAux.setSize((int) processAux.getLifeTime());  // "Gabi's" = Used to pass the life time to be used in waitingTimeAndTurnAround_2 in Calculator
                                 processAux.setLifeTime(this.st.getRemainingTimeToFinishRunning());
-                                processAux.setTimeWhenIncludeInWaitingState(this.timeCounter);
+                                processAux.setTimeWhenIncludeInWaitingState((float)this.timeCounter);
                                 this.waitingProcesses.add(processAux);
                                 this.paintWaitingProcesses(this.waitingProcesses);
                                 this.processCounter++;
                                 
-                                this.newProcess = new Process();
-                                this.newProcess = process;
+                                this.newProcess = new Process(process);
 
                                 t.stop();
                                 
                                 this.st.getJDialogNextStep().setVisible(false);
                                 this.st.setJDialogNextStep(null);
                                 this.st = null;
+
+                                this.reportBaseTemp.add(process);
 
                                 this.jButtonAlgorithmStepsActionPerformed(evt);
                             }
@@ -684,7 +688,7 @@ public class MainScreen extends javax.swing.JApplet {
                     }
                 }
                 else {
-                    process.setCreationTime(this.timeCounter);
+                    process.setCreationTime((float)this.timeCounter);
                     this.readyProcesses.add(process);
                     this.reportBaseTemp.add(process);
                     this.paintReadyProcesses(this.readyProcesses);
@@ -758,64 +762,68 @@ public class MainScreen extends javax.swing.JApplet {
             this.st.setJDialogNextStep(null);
             this.st = null;
         }
-        if (t.isAlive()) {
-            t.stop();
+        if (this.t != null) {
+            if (t.isAlive()) {
+                t.stop();
+            }    
         }
         System.gc();
     }//GEN-LAST:event_jButtonRestartActionPerformed
 
     private void jButtonReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReportActionPerformed
         String report = "";
+        report += "* OBS.: os processos abaixo são listados na ordem em que foram executados!\n";
+
         report += "\n* Informações sobre os processos criados\n";
 
         if(this.st != null) {
             this.reportBase = this.st.getReportBase();
         }
-        
         for(int i = 0; i <= (this.reportBaseTemp.size() - 1); i++) {
-            report += "P" + this.reportBaseTemp.elementAt(i).getId() + ": tempo de burst = " + this.reportBaseTemp.elementAt(i).getLifeTime() + ";  tempo na criação = " + this.reportBaseTemp.elementAt(i).getCreationTime() + ";\n";
+            report += "P" + this.reportBaseTemp.elementAt(i).getId() + ": tempo de burst = " + (int)this.reportBaseTemp.elementAt(i).getLifeTime() + ";  tempo na criação = " + (int)this.reportBaseTemp.elementAt(i).getCreationTime() + ";\n";    
         }
         
-        report += "* OBS.: os processos abaixo são listados na ordem em que foram executados!\n\n";
         report += "\n* Tempos de espera\n";
         
         for(int i = 0; i <= (this.reportBase.size() - 1); i++) {
-            report += "P" + this.reportBase.elementAt(i).getId() + " = " + this.reportBase.elementAt(i).getWaitingTime() + ";  ";
+            report += "P" + this.reportBase.elementAt(i).getId() + " = " + (int)this.reportBase.elementAt(i).getWaitingTime() + ";  ";
             if ((i >0) && (i % 10 == 0)) {
                 report += "\n";
             }
         }
 
-        int mediumWaintingTime = calculator.averageWaitingTime(this.reportBase);
+        DecimalFormat df = new DecimalFormat("#0.00");
+
+        float mediumWaintingTime = calculator.averageWaitingTime(this.reportBase);
         report += "\n\n* Tempo médio de espera\n";
         report += "(";
         for(int i = 0; i <= (this.reportBase.size() - 2); i++) {
-            report += this.reportBase.elementAt(i).getWaitingTime() + " + ";
+            report += (int)this.reportBase.elementAt(i).getWaitingTime() + " + ";
             if((i >0) && (i % 21 == 0)) {
                 report += "\n";
             }
         }
-        report += this.reportBase.lastElement().getWaitingTime() + ") / " + this.reportBase.size() + " = " + mediumWaintingTime;
+        report += (int)this.reportBase.lastElement().getWaitingTime() + ") / " + this.reportBase.size() + " = " + df.format(mediumWaintingTime);
         
         report += "\n\n* Tempos de retorno (turn around)\n";
         
         for(int i = 0; i <= (this.reportBase.size() - 1); i++) {
-            report += "P" + this.reportBase.elementAt(i).getId() + " = " + this.reportBase.elementAt(i).getTurnAround() + ";  ";
+            report += "P" + this.reportBase.elementAt(i).getId() + " = " + (int)this.reportBase.elementAt(i).getTurnAround() + ";  ";
             if ((i >0) && (i % 10 == 0)) {
                 report += "\n";
             }
         }
         
-        int mediumTurnAround = calculator.averageTurnAround(this.reportBase);
+        float mediumTurnAround = calculator.averageTurnAround(this.reportBase);
         report += "\n\n* Tempo médio de retorno (turn around médio)\n";
         report += "(";
         for(int i = 0; i <= (this.reportBase.size() - 2); i++) {
-            report += this.reportBase.elementAt(i).getTurnAround() + " + ";
+            report += (int)this.reportBase.elementAt(i).getTurnAround() + " + ";
             if((i >0) && (i % 21 == 0)) {
                 report += "\n";
             }
         }
-        report += this.reportBase.lastElement().getTurnAround() + ") / " + this.reportBase.size() + " = " + mediumTurnAround;
+        report += (int)this.reportBase.lastElement().getTurnAround() + ") / " + this.reportBase.size() + " = " + df.format(mediumTurnAround);
         
         JTextArea reportArea = new JTextArea(report);
         reportArea.setEditable(false);
@@ -848,7 +856,7 @@ public class MainScreen extends javax.swing.JApplet {
             block.setHorizontalAlignment(javax.swing.JTextField.CENTER);
             block.setEditable(false);
             block.setText("P" + String.valueOf(processesQueue.elementAt(i).getId()));
-            block.setToolTipText("Tempo de burst = " + String.valueOf(processesQueue.elementAt(i).getLifeTime()) + ";\n  Tempo na criação = " + String.valueOf(processesQueue.elementAt(i).getCreationTime()));
+            block.setToolTipText("Tempo de burst = " + String.valueOf((int)processesQueue.elementAt(i).getLifeTime()) + ";\n  Tempo na criação = " + String.valueOf((int)processesQueue.elementAt(i).getCreationTime()));
             this.jPanelReadyProcesses.add(block);
             if (i <= 8) {
                 block.setBounds(10+(i*35), orientationAxisYSecMem, 30, 30);
@@ -872,7 +880,7 @@ public class MainScreen extends javax.swing.JApplet {
             block.setHorizontalAlignment(javax.swing.JTextField.CENTER);
             block.setEditable(false);
             block.setText("P" + String.valueOf(processes.elementAt(i).getId()));
-            block.setToolTipText("Tempo de burst restante = " + String.valueOf(processes.elementAt(i).getLifeTime()));
+            block.setToolTipText("Tempo de burst restante = " + String.valueOf((int)processes.elementAt(i).getLifeTime()));
             this.jPanelWaitingProcesses.add(block);
             if (i <= 8) {
                 block.setBounds(10+(i*35), orientationAxisYSecMem, 30, 30);
