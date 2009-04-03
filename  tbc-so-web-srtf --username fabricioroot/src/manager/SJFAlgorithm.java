@@ -17,7 +17,7 @@ public class SJFAlgorithm {
      */
     public int toExecute(Vector<Process> processes, int maximum) {
         int out = 0;
-        int aux = maximum + 1;
+        float aux = maximum + 1;
         
         for(int i = 0; i <= (processes.size() - 1); i++) {
             if(aux > processes.elementAt(i).getLifeTime()) {
@@ -37,7 +37,7 @@ public class SJFAlgorithm {
      */
     public Vector<Integer> findPositionsPossibleProcesses(Vector<Process> processes, int maximum) {
         Vector<Integer> positions = new Vector<Integer>();
-        int aux = maximum + 1;
+        float aux = maximum + 1;
         
         for(int i = 0; i <= (processes.size() - 1); i++) {
             if(aux > processes.elementAt(i).getLifeTime()) {

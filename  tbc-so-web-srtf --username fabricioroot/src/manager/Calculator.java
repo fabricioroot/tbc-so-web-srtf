@@ -16,8 +16,8 @@ public class Calculator {
      * the algorithm SRTF (shortest remaining time first).
      */
     public Process waitingTimeAndTurnAround (Vector<Process> processes, int time, int maximum) {
-        Process out = new Process();
-        int aux = maximum + 1;
+        Process out;
+        float aux = maximum + 1;
         int position = 0;
         
         // It finds the shortest burst time (life time)
@@ -30,7 +30,7 @@ public class Calculator {
                 }
             }
         }        
-        out = processes.elementAt(position);
+        out = new Process(processes.elementAt(position));
         // Waiting time = time (clock) - creation time
         out.setWaitingTime(time - out.getCreationTime());
         // Turn Around = waiting time + burst time
@@ -42,33 +42,35 @@ public class Calculator {
      * the algorithm SRTF (shortest remaining time first), but only for those which are in the wainting processes queue.
      */
     public Vector<Process> waitingTimeAndTurnAround_2 (Vector<Process> waitingProcesses, Vector<Process> reportBase, int time) {
-        Process aux = new Process();
+        Process aux; 
         int position = 0;  // This is used to save the position where the 'process' (equals to 'aux') in 'reportBase' is
 
-        // It catchs the last element of 'waintingProcesses', that according to the algorithm, the shortest one
-        aux = waitingProcesses.lastElement();
+        // It catchs the last element of 'waintingProcesses', according to the algorithm, it's the shortest one
+        aux = new Process(waitingProcesses.lastElement());
         aux.setWaitingTime(time - aux.getTimeWhenIncludeInWaitingState());
         
-        // It finds the shortest burst time (life time)
+        // It finds the element in the reportBase vector
         for(int i = 0; i <= (reportBase.size() - 1); i++) {
             if(aux.getId() == reportBase.elementAt(i).getId()) {
                 position = i;
+                i = reportBase.size();
             }
         }
-        
-        aux.setWaitingTime(aux.getWaitingTime() + reportBase.elementAt(position).getWaitingTime());
-        // Turn Around = waiting time + burst time
-        aux.setTurnAround(aux.getWaitingTime() + aux.getLifeTime());
 
-        reportBase.elementAt(position).setWaitingTime(aux.getWaitingTime() + reportBase.elementAt(position).getWaitingTime()); 
+        aux.setWaitingTime(aux.getWaitingTime() + waitingProcesses.lastElement().getWaitingTime());
+        // Turn Around = waiting time + burst time
+        aux.setTurnAround(aux.getWaitingTime() + aux.getSize());
+
+        reportBase.elementAt(position).setWaitingTime(aux.getWaitingTime());
+        reportBase.elementAt(position).setTurnAround(aux.getTurnAround());
         return reportBase;
     }
     
     
     /* This method calculates the average of the waiting times.
      */
-    public int averageWaitingTime (Vector<Process> processes) {
-        int aux = 0;
+    public float averageWaitingTime (Vector<Process> processes) {
+        float aux = 0;
         for (int i = 0; i <= (processes.size() - 1); i++) {
             aux += processes.elementAt(i).getWaitingTime();
         }
@@ -78,8 +80,8 @@ public class Calculator {
     
     /* This method calculates the average of the turns around.
      */
-    public int averageTurnAround (Vector<Process> processes) {
-        int aux = 0;
+    public float averageTurnAround (Vector<Process> processes) {
+        float aux = 0;
         for (int i = 0; i <= (processes.size() - 1); i++) {
             aux += processes.elementAt(i).getTurnAround();
         }
