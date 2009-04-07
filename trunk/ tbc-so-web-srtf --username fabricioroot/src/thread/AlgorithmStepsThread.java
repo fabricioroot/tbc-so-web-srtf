@@ -488,6 +488,8 @@ public class AlgorithmStepsThread implements Runnable {
                     this.jProgressBarExecution.setVisible(false);
                     this.jLabelShowBurstTime.setText("");
                     this.jLabelShowCreationTime.setText("");
+                    
+                    this.process = null;
 
                     if(this.readyProcesses.size() > 0) {
                         this.jButtonAlgorithmSteps.setEnabled(true);
