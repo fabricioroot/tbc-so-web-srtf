@@ -544,7 +544,7 @@ public class MainScreen extends javax.swing.JApplet {
                                            "inicio\n\n" +
                                            "    se ('função srtf' estiver sendo executada)\n" +
                                            "        se (processoNovo.tempoDeVida < srtf.processo.tempoDeVida)\n" +
-                                           "            para a execução da 'função srtf';\n" +
+                                           "            pára a execução da 'função srtf';\n" +
                                            "            adiciona 'srtf.processo' no fim da lista 'listaDeEspera';\n" +
                                            "            srtf(listaDeProntos, listaDeEspera, processoNovo, tamanhoMaximo);\n" +
                                            "        Fim se\n" +
@@ -647,7 +647,10 @@ public class MainScreen extends javax.swing.JApplet {
                                         "                                2) o processo escalonado (P" + processAux.getId() + ") será interrompido e entrará na lista de processos em espera (Blocos Azuis);\n" +
                                         "                                3) o processo criado (P" + process.getId() +  ") começará a ser executado imediatamente.", "ATENÇÃO", JOptionPane.WARNING_MESSAGE);
 
-                                processAux.setSize((int) processAux.getLifeTime());  // "Gabi's" = Used to pass the life time to be used in waitingTimeAndTurnAround_2 in Calculator
+                                // "Gambi's" = Used to pass the life time to be used in waitingTimeAndTurnAround_2 in Calculator
+                                if (processAux.getSize() == 0) {
+                                    processAux.setSize((int) processAux.getLifeTime());
+                                }
                                 processAux.setLifeTime(this.st.getRemainingTimeToFinishRunning());
                                 processAux.setTimeWhenIncludeInWaitingState((float)this.timeCounter);
                                 this.waitingProcesses.add(processAux);
@@ -716,6 +719,10 @@ public class MainScreen extends javax.swing.JApplet {
 }//GEN-LAST:event_jButtonCreateProcessActionPerformed
 
     private void jButtonAlgorithmStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlgorithmStepsActionPerformed
+        if (st == null) {
+            JOptionPane.showMessageDialog(null, "Será aberta uma janela com um botão \"OK\" para prosseguir os passos do algoritmo.\n" +
+                            "DICA: caso esta janela suma (saia da frente das outras janelas abertas), use as teclas \"ALT + TAB\" para colocá-la na frente novamente.", "ATENÇÃO", JOptionPane.WARNING_MESSAGE);
+        }
         if(this.st != null) {
             this.reportBase = this.st.getReportBase();
             this.timeCounter = this.st.getTimeCounter();
@@ -772,9 +779,7 @@ public class MainScreen extends javax.swing.JApplet {
 
     private void jButtonReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReportActionPerformed
         String report = "";
-        report += "* OBS.: os processos abaixo são listados na ordem em que foram executados!\n";
-
-        report += "\n* Informações sobre os processos criados\n";
+        report += "\n* INFORMAÇOES SOBRE OS PROCESSOS CRIADOS\n";
 
         if(this.st != null) {
             this.reportBase = this.st.getReportBase();

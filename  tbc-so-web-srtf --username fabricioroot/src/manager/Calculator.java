@@ -44,26 +44,28 @@ public class Calculator {
     public Vector<Process> waitingTimeAndTurnAround_2 (Vector<Process> waitingProcesses, Vector<Process> reportBase, int time) {
         Process aux; 
         int position = 0;  // This is used to save the position where the 'process' (equals to 'aux') in 'reportBase' is
-
-        // It catchs the last element of 'waintingProcesses', according to the algorithm, it's the shortest one
+        float floatAux = 0;
+        Vector<Process> reportBaseAux = new Vector<Process>(reportBase);
+        
+        // It catchs the last element of 'waintingProcesses', that according to the algorithm has the highest priority
         aux = new Process(waitingProcesses.lastElement());
-        aux.setWaitingTime(time - aux.getTimeWhenIncludeInWaitingState());
+        floatAux = (float)time - aux.getTimeWhenIncludeInWaitingState();
         
         // It finds the element in the reportBase vector
-        for(int i = 0; i <= (reportBase.size() - 1); i++) {
-            if(aux.getId() == reportBase.elementAt(i).getId()) {
+        for(int i = 0; i <= (reportBaseAux.size() - 1); i++) {
+            if(aux.getId() == reportBaseAux.elementAt(i).getId()) {
                 position = i;
-                i = reportBase.size();
+                i = reportBaseAux.size();
             }
         }
 
-        aux.setWaitingTime(aux.getWaitingTime() + waitingProcesses.lastElement().getWaitingTime());
+        aux.setWaitingTime(floatAux + reportBaseAux.elementAt(position).getWaitingTime());
         // Turn Around = waiting time + burst time
         aux.setTurnAround(aux.getWaitingTime() + aux.getSize());
 
-        reportBase.elementAt(position).setWaitingTime(aux.getWaitingTime());
-        reportBase.elementAt(position).setTurnAround(aux.getTurnAround());
-        return reportBase;
+        reportBaseAux.elementAt(position).setWaitingTime(aux.getWaitingTime());
+        reportBaseAux.elementAt(position).setTurnAround(aux.getTurnAround());
+        return reportBaseAux;
     }
     
     
