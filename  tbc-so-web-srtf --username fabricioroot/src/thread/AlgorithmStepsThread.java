@@ -1,10 +1,7 @@
 package thread;
 
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
 import java.util.Vector;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import bean.Process;
@@ -36,7 +33,6 @@ public class AlgorithmStepsThread implements Runnable {
     JLabel jLabelTimeCounter;
     JLabel jLabelCPU;
     boolean isJButtonOkClicked = false;
-    JDialog jDialogNextStep = new JDialog();
     JButton jButtonOkNextStep;
     JLabel jLabelAtDialogNextStep;
     Calculator calculator = new Calculator();
@@ -51,7 +47,7 @@ public class AlgorithmStepsThread implements Runnable {
 
     public AlgorithmStepsThread(MainScreen mainScreen, JButton jButtonAlgorithmSteps, JButton jButtonReport, Vector<Process> readyProcesses, Vector<Process> waitingProcesses,
                                 Vector<Process> reportBase, int timeCounter, JPanel jPanelCPU, JPanel jPanelReadyProcesses, JProgressBar jProgressBarExecution,
-                                JLabel jLabelShowBurstTime,JLabel jLabelShowCreationTime, JLabel jLabelTimeCounter, JLabel jLabelCPU, int MAXIMUM, Process newProcess){
+                                JLabel jLabelShowBurstTime,JLabel jLabelShowCreationTime, JLabel jLabelTimeCounter, JLabel jLabelCPU, int MAXIMUM, Process newProcess, JButton jButtonOkNextStep){
         
         this.mainScreen = mainScreen;
         this.jButtonAlgorithmSteps = jButtonAlgorithmSteps;
@@ -69,6 +65,7 @@ public class AlgorithmStepsThread implements Runnable {
         this.jLabelCPU = jLabelCPU;
         this.MAXIMUM = MAXIMUM;
         this.newProcess = newProcess;
+        this.jButtonOkNextStep = jButtonOkNextStep;
     }
 
     public JTextField getBlock() {
@@ -111,42 +108,22 @@ public class AlgorithmStepsThread implements Runnable {
         return remainingTimeToFinishRunning;
     }
 
-    public JDialog getJDialogNextStep() {
-        return jDialogNextStep;
+    public JButton getJButtonOkNextStep() {
+        return jButtonOkNextStep;
     }
 
-    public void setJDialogNextStep(JDialog jDialogNextStep) {
-        this.jDialogNextStep = jDialogNextStep;
+    public void setJButtonOkNextStep(JButton jButtonOkNextStep) {
+        this.jButtonOkNextStep = jButtonOkNextStep;
     }
 
     public void run() {
         this.jButtonAlgorithmSteps.setEnabled(false);
-
-        this.jDialogNextStep.setModalityType(ModalityType.MODELESS);
-        this.jDialogNextStep.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
-        //this.jDialogNextStep.setAlwaysOnTop(true);
-        this.jDialogNextStep.setResizable(false);
-        this.jDialogNextStep.setBounds(600, 520, 231, 118);
-        this.jDialogNextStep.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        this.jDialogNextStep.setLayout(null);
-
-        this.jButtonOkNextStep = new JButton("OK");
-        this.jButtonOkNextStep.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        this.jButtonOkNextStep.setBorderPainted(true);
-        this.jButtonOkNextStep.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        this.jButtonOkNextStep.setBounds(80, 35, 60, 30);
 
         this.jButtonOkNextStep.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 isJButtonOkClicked = true;
             }
         });
-
-        this.jLabelAtDialogNextStep = new JLabel("Clique em 'OK' para o próximo passo");
-        this.jLabelAtDialogNextStep.setBounds(5, 3, 500, 30);
-
-        this.jDialogNextStep.add(this.jLabelAtDialogNextStep);
-        this.jDialogNextStep.add(this.jButtonOkNextStep);
 
         this.jLabelShowBurstTime.setVisible(true);
         this.jLabelShowCreationTime.setVisible(true);
@@ -178,8 +155,7 @@ public class AlgorithmStepsThread implements Runnable {
             this.jLabelShowBurstTime.setText("Tempo de burst de P" + String.valueOf(this.newProcess.getId()) + " = " + String.valueOf((int)this.newProcess.getLifeTime()));
             this.jLabelShowCreationTime.setText("Tempo na criação de P" + String.valueOf(this.newProcess.getId()) + " = " + String.valueOf((int)this.newProcess.getCreationTime()));
 
-            this.jDialogNextStep.setTitle("PROCESSANDO P" + String.valueOf(this.newProcess.getId()) + " ...");
-            this.jDialogNextStep.setVisible(true);
+            this.jButtonOkNextStep.setVisible(true);
             this.remainingTimeToFinishRunning = this.newProcess.getLifeTime();
             int j = 0;
             int aux = 0;
@@ -206,7 +182,7 @@ public class AlgorithmStepsThread implements Runnable {
                     this.jProgressBarExecution.getUI().update(this.jProgressBarExecution.getGraphics(), this.jProgressBarExecution);
                 }
             }
-            this.jDialogNextStep.setVisible(false);
+            this.jButtonOkNextStep.setVisible(false);
 
             this.jPanelCPU.removeAll();
             this.jPanelCPU.repaint();
@@ -244,8 +220,7 @@ public class AlgorithmStepsThread implements Runnable {
                 this.jLabelShowBurstTime.setText("Tempo de burst de P" + String.valueOf(this.process.getId()) + " = " + String.valueOf((int)this.process.getLifeTime()));
                 this.jLabelShowCreationTime.setText("Tempo na criação de P" + String.valueOf(this.process.getId()) + " = " + String.valueOf((int)this.process.getCreationTime()));
 
-                this.jDialogNextStep.setTitle("PROCESSANDO P" + String.valueOf(this.process.getId()) + " ...");
-                this.jDialogNextStep.setVisible(true);
+                this.jButtonOkNextStep.setVisible(true);
                 this.remainingTimeToFinishRunning = this.process.getLifeTime();
                 int j = 0;
                 int aux = 0;
@@ -272,7 +247,7 @@ public class AlgorithmStepsThread implements Runnable {
                         this.jProgressBarExecution.getUI().update(this.jProgressBarExecution.getGraphics(), this.jProgressBarExecution);
                     }
                 }
-                this.jDialogNextStep.setVisible(false);
+                this.jButtonOkNextStep.setVisible(false);
 
                 this.jPanelCPU.removeAll();
                 this.jPanelCPU.repaint();
@@ -293,8 +268,6 @@ public class AlgorithmStepsThread implements Runnable {
                     SJFAlgorithm algorithm = new SJFAlgorithm();
                     Vector<Integer> positionsPossibleProcesses = new Vector<Integer>();
 
-                    this.jDialogNextStep.setTitle("BUSCANDO PROCESSO IDEAL ...");
-
                     block = new JTextField();
                     block.setText("j");
                     block.setBackground(new java.awt.Color(255, 255, 102));
@@ -305,26 +278,26 @@ public class AlgorithmStepsThread implements Runnable {
 
                     // Here is painted the first yellow block on the first possible "process" to be executed
                     int orientationAxisY = 20;
-                    this.jDialogNextStep.setVisible(true);
+                    this.jButtonOkNextStep.setVisible(true);
                     block.setBounds(10, orientationAxisY, 30, 30);
                     this.jLabelShowBurstTime.setText("Tempo de burst em \"j\" = " + String.valueOf((int)this.readyProcesses.elementAt(0).getLifeTime()));
                     do {
                         if (this.isJButtonOkClicked) {
-                            this.jDialogNextStep.setVisible(false);
+                            this.jButtonOkNextStep.setVisible(false);
                         }
                     } while (!this.isJButtonOkClicked);
                     this.isJButtonOkClicked = false;
-                    this.jDialogNextStep.setVisible(false);
+                    this.jButtonOkNextStep.setVisible(false);
 
                     // Here is changed the value of 'block' to paint the first green block on the first possible "process" to be executed
                     this.jLabelShowCreationTime.setText("Tempo de burst em \"i\" = " + String.valueOf((int)this.readyProcesses.elementAt(0).getLifeTime()));
                     block.setText("i");
                     block.setBackground(new java.awt.Color(0, 255, 0));
                     block.setToolTipText("Possível escalonado");
-                    this.jDialogNextStep.setVisible(true);
+                    this.jButtonOkNextStep.setVisible(true);
                     do {
                         if (this.isJButtonOkClicked) {
-                            this.jDialogNextStep.setVisible(false);
+                            this.jButtonOkNextStep.setVisible(false);
                         }
                     } while (!this.isJButtonOkClicked);
                     this.isJButtonOkClicked = false;
@@ -347,7 +320,7 @@ public class AlgorithmStepsThread implements Runnable {
                             block1.setEditable(false);
                             this.jPanelReadyProcesses.add(block1);
 
-                            this.jDialogNextStep.setVisible(true);
+                            this.jButtonOkNextStep.setVisible(true);
                             int i = positionsPossibleProcesses.elementAt(j-1);
                             block1.setBounds(10+(i*35), orientationAxisY, 30, 30);
                             this.jLabelShowBurstTime.setText("Tempo de burst em \"j\" = " + String.valueOf((int)this.readyProcesses.elementAt(i).getLifeTime()));
@@ -360,15 +333,15 @@ public class AlgorithmStepsThread implements Runnable {
                                     i++;
                                 }
                             }
-                            this.jDialogNextStep.setVisible(false);
+                            this.jButtonOkNextStep.setVisible(false);
                             i--;
                             block1.setBounds(10+(i*35), orientationAxisY, 30, 30);
                             this.jLabelShowBurstTime.setText("Tempo de burst em \"j\" = " + String.valueOf((int)this.readyProcesses.elementAt(i).getLifeTime()));
 
-                            this.jDialogNextStep.setVisible(true);
+                            this.jButtonOkNextStep.setVisible(true);
                             do {
                                 if (this.isJButtonOkClicked) {
-                                    this.jDialogNextStep.setVisible(false);
+                                    this.jButtonOkNextStep.setVisible(false);
                                 }
                             } while (!this.isJButtonOkClicked);
                             this.isJButtonOkClicked = false;
@@ -386,10 +359,10 @@ public class AlgorithmStepsThread implements Runnable {
                             block1 = null;
                             block = null;
 
-                            this.jDialogNextStep.setVisible(true);
+                            this.jButtonOkNextStep.setVisible(true);
                             do {
                                 if (this.isJButtonOkClicked) {
-                                    this.jDialogNextStep.setVisible(false);
+                                    this.jButtonOkNextStep.setVisible(false);
                                 }
                             } while (!this.isJButtonOkClicked);
                             this.isJButtonOkClicked = false;
@@ -409,7 +382,7 @@ public class AlgorithmStepsThread implements Runnable {
                         block2.setEditable(false);
                         this.jPanelReadyProcesses.add(block2);
 
-                        this.jDialogNextStep.setVisible(true);
+                        this.jButtonOkNextStep.setVisible(true);
                         j = positionsPossibleProcesses.lastElement();
                         block2.setBounds(10+(j*35), orientationAxisY, 30, 30);
                         this.jLabelShowBurstTime.setText("Tempo de burst em \"j\" = " + String.valueOf((int)this.readyProcesses.elementAt(j).getLifeTime()));
@@ -422,13 +395,13 @@ public class AlgorithmStepsThread implements Runnable {
                                 j++;
                             }
                         }
-                        this.jDialogNextStep.setVisible(false);
+                        this.jButtonOkNextStep.setVisible(false);
                     }
 
-                    this.jDialogNextStep.setVisible(true);
+                    this.jButtonOkNextStep.setVisible(true);
                     do {
                         if (this.isJButtonOkClicked) {
-                            this.jDialogNextStep.setVisible(false);
+                            this.jButtonOkNextStep.setVisible(false);
                         }
                     } while (!this.isJButtonOkClicked);
                     this.isJButtonOkClicked = false;
@@ -451,8 +424,7 @@ public class AlgorithmStepsThread implements Runnable {
                     this.jLabelShowBurstTime.setText("Tempo de burst de P" + String.valueOf(process.getId()) + " = " + String.valueOf((int)process.getLifeTime()));
                     this.jLabelShowCreationTime.setText("Tempo na criação de P" + String.valueOf(process.getId()) + " = " + String.valueOf((int)process.getCreationTime()));
 
-                    this.jDialogNextStep.setTitle("PROCESSANDO P" + String.valueOf(process.getId()) + " ...");
-                    this.jDialogNextStep.setVisible(true);
+                    this.jButtonOkNextStep.setVisible(true);
                     this.remainingTimeToFinishRunning = process.getLifeTime();
                     j = 0;
                     int aux = 0;
@@ -479,7 +451,7 @@ public class AlgorithmStepsThread implements Runnable {
                             this.jProgressBarExecution.getUI().update(this.jProgressBarExecution.getGraphics(), this.jProgressBarExecution);
                         }
                     }
-                    this.jDialogNextStep.setVisible(false);
+                    this.jButtonOkNextStep.setVisible(false);
 
                     this.jPanelCPU.removeAll();
                     this.jPanelCPU.repaint();
